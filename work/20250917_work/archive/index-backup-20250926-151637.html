@@ -3257,18 +3257,6 @@
                 <button class="close-btn" id="closeDateMemo">✕</button>
             </div>
 
-            <div class="memo-list-header">
-                <div class="memo-list-title">📅 이 날짜의 메모</div>
-                <button class="memo-lock-toggle" id="dateMemoLockToggle">
-                    <span class="lock-icon">🔒</span>
-                    <span class="lock-text">잠금</span>
-                </button>
-            </div>
-
-            <div class="memo-list" id="dateMemoList">
-                <!-- 해당 날짜의 메모들이 여기에 표시됩니다 -->
-            </div>
-
             <div class="memo-form">
                 <input type="text" class="memo-input" id="dateMemoTitleInput" placeholder="메모 제목을 입력하세요...">
                 <textarea class="memo-textarea" id="dateMemoContentInput" placeholder="메모 내용을 입력하세요..."></textarea>
@@ -3283,6 +3271,18 @@
                     </div>
                 </div>
                 <button class="memo-save-btn" id="saveDateMemo">💾 저장</button>
+            </div>
+
+            <div class="memo-list-header">
+                <div class="memo-list-title">📅 이 날짜의 메모</div>
+                <button class="memo-lock-toggle" id="dateMemoLockToggle">
+                    <span class="lock-icon">🔒</span>
+                    <span class="lock-text">잠금</span>
+                </button>
+            </div>
+
+            <div class="memo-list" id="dateMemoList">
+                <!-- 해당 날짜의 메모들이 여기에 표시됩니다 -->
             </div>
         </div>
     </div>
@@ -3621,8 +3621,8 @@
                 day.addEventListener('click', function(e) {
                     console.log('📅 날짜 클릭됨:', date, 'isTrusted:', e.isTrusted);
                     
-                    // 자동 클릭 방지 (테스트 환경에서는 허용)
-                    if (e.isTrusted === false && !window.location.href.includes('localhost')) {
+                    // 자동 클릭 방지
+                    if (e.isTrusted === false) {
                         console.log('🚫 자동 클릭 차단');
                         return;
                     }
@@ -9274,10 +9274,10 @@
     }
     
     // 동적 콘텐츠 감시
-    const attachmentObserver = new MutationObserver(() => {
+    const observer = new MutationObserver(() => {
         setTimeout(testAttachmentViewer, 100);
     });
-    attachmentObserver.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true });
     
     console.log('🎯 첨부파일 뷰어 테스트 스크립트 준비 완료');
     </script>
