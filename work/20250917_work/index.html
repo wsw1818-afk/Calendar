@@ -1887,7 +1887,15 @@
         
         /* 메모 상세 모달은 더 높은 z-index */
         #memoDetailModal {
-            z-index: 999999 !important;
+            z-index: 1000010 !important;
+        }
+
+        #memoDetailModal .memo-modal-content {
+            z-index: 1000011 !important;
+        }
+
+        #memoDetailModal .modal-header {
+            z-index: 1000012 !important;
         }
 
         .memo-modal-content {
@@ -7543,6 +7551,7 @@
             }
             
             selectedDate = targetDate;
+            window.selectedDate = targetDate; // 전역 변수도 동기화
             document.getElementById('dateMemoTitle').textContent = `📅 ${selectedDate} 메모`;
             
             // 날짜별 메모 모달만 열기 (스티키 메모는 열지 않음)
@@ -7598,8 +7607,10 @@
             }
             
             // selectedDate 전역 변수 설정 (displayDateMemos가 사용)
-            window.selectedDate = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-            
+            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+            selectedDate = dateStr; // 지역 변수도 동기화
+            window.selectedDate = dateStr;
+
             if (window.displayDateMemos) window.displayDateMemos();
         }
 
@@ -7686,6 +7697,7 @@
             
             clearDateMemoForm();
             selectedDate = null;
+            window.selectedDate = null; // 전역 변수도 동기화
             
             // 달력에 표시된 메모 리스트 숨기기
             const dateMemoList = document.getElementById('dateMemoList');
@@ -7755,15 +7767,18 @@
 
         async function saveDateMemo() {
             const startTime = Date.now();
-            console.log('💾 saveDateMemo 함수 시작', {selectedDate});
-            
+            console.log('🚀 saveDateMemo 함수 진입점!', {selectedDate, 'window.selectedDate': window.selectedDate});
+
             if (window.DiagnosticSystem) {
                 window.DiagnosticSystem.trackInteraction('SAVE_DATE_MEMO', 'saveDateMemo', true, 0);
             }
-            
-            if (!selectedDate) {
+
+            // selectedDate 또는 window.selectedDate 중 하나라도 있으면 사용
+            const currentSelectedDate = selectedDate || window.selectedDate;
+
+            if (!currentSelectedDate) {
                 console.warn('⚠️ selectedDate가 없어 메모 저장 중단');
-                
+
                 if (window.DiagnosticSystem) {
                     window.DiagnosticSystem.detectIssue('SAVE_ERROR', 'selectedDate 누락', {
                         severity: 'error'
@@ -7781,7 +7796,7 @@
             const editMemoId = titleInput.getAttribute('data-edit-memo-id');
             const isEditMode = editMemoId !== null;
 
-            console.log('📝 저장할 메모 데이터:', {title, content, selectedDate, isEditMode, editMemoId});
+            console.log('📝 저장할 메모 데이터:', {title, content, selectedDate: currentSelectedDate, isEditMode, editMemoId});
 
             if (!title) {
                 alert('메모 제목을 입력해주세요!');
@@ -7802,7 +7817,7 @@
                     id: parseInt(editMemoId),
                     title: title,
                     content: content,
-                    date: selectedDate,
+                    date: currentSelectedDate,
                     timestamp: new Date().toISOString()
                 };
             } else {
@@ -7813,7 +7828,7 @@
                     id: memoId,
                     title: title,
                     content: content,
-                    date: selectedDate,
+                    date: currentSelectedDate,
                     timestamp: new Date().toISOString()
                 };
             }
@@ -8396,7 +8411,12 @@
 
             const saveDateMemoBtn = document.getElementById('saveDateMemo');
             if (saveDateMemoBtn) {
-                saveDateMemoBtn.addEventListener('click', saveDateMemo);
+                saveDateMemoBtn.addEventListener('click', function(e) {
+                    console.log('🔥 저장 버튼 클릭 감지됨!', e);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    saveDateMemo();
+                });
                 console.log('날짜 메모 저장 버튼 이벤트 등록 완료');
             }
 
